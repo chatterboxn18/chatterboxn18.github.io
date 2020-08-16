@@ -25,8 +25,8 @@
 				"english": "to be cheap (formal)"
 			},
 			{
-				"korean":"중요하다",
-				"english" : "to be important, significant"
+				"korean":"심심하다",
+				"english" : "to be bored"
 			},
 			{
 				"korean":"사소하다",
@@ -35,6 +35,40 @@
 			{
 				"korean":"지루하다",
 				"english" : "to be boring"
+			},
+			{
+				"korean":"한산하다",
+				"english": "to be quiet, dull",
+				"korean-sentence": "월요일은 가게가 비교적 한산하다",
+				"english-sentence": "Business is relatively slow on Mondays"
+			},
+			{
+				"korean":"썰렁하다",
+				"english" : "to be chilly (temperature), to be awkward (situationally)"
+			},
+			{
+				"korean":"심심하다",
+				"english": "to be bored"
+			},
+			{
+				"korean":"피곤하다",
+				"english" : "to be tired (physically)"
+			},
+			{
+				"korean":"강하다",
+				"english": "to be strong (broad), powerful"
+			},
+			{
+				"korean":"딱딱하다",
+				"english" : "to be hard, stiff, stern, unfriendly"
+			},
+			{
+				"korean":"활발하다",
+				"english": "to be lively, outgoing; active, busy"
+			},
+			{
+				"korean":"가난하다",
+				"english" : "to be poor (money)"
 			}
 		]
 	}
