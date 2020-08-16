@@ -24,7 +24,7 @@ function loadGame(){
 };
 
 function setupCards(wordList){
-	var length = 9;
+	var length = wordList.length;
 	for (var i = 0; i < length; i++){
 		var wordButton = document.createElement('button');
 		wordButton.className = 'btn';
