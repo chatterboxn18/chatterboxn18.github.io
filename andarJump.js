@@ -32,6 +32,7 @@ var player;
 var level; 
 var levelTimer;
 var timerTime;
+var cursors;
 
 function mainPreload(){
 	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/')
@@ -41,11 +42,15 @@ function mainPreload(){
 
 function mainCreate(){
 	var cabinet = this.add.image(200,200, 'cabinet');
-	cabinet.setScale(.1);
+	cabinet.setScale(.3);
+	createPlayer(this);
 }
 
-function createPlayer(){
+function createPlayer(game){
 	player = game.physics.add.sprite(50, 0, 'moonbyul');
+	player.setScale(.3);
+	player.setCollideWorldBounds(true);
+	cursors = game.input.keyboard.createCursorKeys();
 }
 
 function mainUpdate(){
@@ -53,5 +58,8 @@ function mainUpdate(){
 		if (cursors.up.isDown){
 			player.setVelocityY(-350);
 		}
+	}
+	else if (player.body.touching.down){
+		player.setVelocityX(0);
 	}
 }
