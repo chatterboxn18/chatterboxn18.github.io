@@ -1,7 +1,8 @@
 var mainSceneConfig = {
 	key: 'main', 
-	preload: preloadMain,
+	preload: mainPreload,
 	create: mainCreate,
+	update: mainUpdate,
 	pack: {
 		files: [
 			{
@@ -27,12 +28,30 @@ var gameConfig = {
 }
 
 var game = new Phaser.Game(gameConfig);
+var player;
+var level; 
+var levelTimer;
+var timerTime;
 
-function preloadMain(){
+function mainPreload(){
 	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/')
 	this.load.image('cabinet', 'andar-cabinet.png');
+	this.load.image('moonbyul', 'andar-moonbyul.png');
 }
 
 function mainCreate(){
-	this.add.image(200,200, 'cabinet');
+	var cabinet = this.add.image(200,200, 'cabinet');
+	cabinet.setScale(.1);
+}
+
+function createPlayer(){
+	player = game.physics.add.sprite(50, 0, 'moonbyul');
+}
+
+function mainUpdate(){
+	if (player.body.touching.down){
+		if (cursors.up.isDown){
+			player.setVelocityY(-350);
+		}
+	}
 }
