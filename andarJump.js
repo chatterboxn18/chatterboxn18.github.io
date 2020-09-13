@@ -12,6 +12,17 @@ var mainSceneConfig = {
 	}
 }
 
+var mainScene = new Phaser.Scene(mainSceneConfig);
+
+var selectionSceneConfig = {
+	key: 'selection',
+	preload: selectionPreload, 
+	create: selectionCreate,
+	update: selectionUpdate
+}
+
+var selectionScene = new Phaser.Scene(selectionSceneConfig);
+
 var gameConfig = {
 	type: Phaser.CANVAS, 
 	parent: 'mainContent',
@@ -23,8 +34,28 @@ var gameConfig = {
 			gravity: {y:300}, 
 			debug: false
 		}
-	},
-	scene: [mainSceneConfig]
+	}, 
+	scene: [selectionSceneConfig, mainSceneConfig]
+}
+
+function selectionPreload(){
+	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/');
+	this.load.image('background', 'andar-bg.png');
+	this.load.image('moonbyul', 'andar-selection-moonbyul.png');
+	this.load.image('solar', 'andar-selection-solar.png');
+	this.load.image('hwasa', 'andar-selection-hwasa.png');
+	this.load.image('wheein', 'andar-selection-wheein.png');
+
+	console.log("selection preload");
+}
+
+function selectionCreate(){
+	var background = this.add.sprite(750,175, "background");
+	var moonbyul = this.add.image(62.5, 175, 'moonbyul');
+}
+
+function selectionUpdate(){
+
 }
 
 var game = new Phaser.Game(gameConfig);
@@ -51,7 +82,7 @@ function mainPreload(){
 function mainCreate(){
 	main = this;
 	isPaused = false;
-	this.background = this.add.tileSprite(0,0, 1500, 500, "background")
+	this.background = this.add.tileSprite(0,0, 1500, 500, "background");
 	this.background.setScale(.7);
 	this.background.setOrigin(0);
 	this.background.setScrollFactor(0,1);
