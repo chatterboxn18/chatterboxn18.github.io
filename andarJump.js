@@ -122,6 +122,7 @@ function mainCreate(){
 	})
 	createPlayer(this);
 	createGround(this);
+	score = this.add.text(250, 30, "Score", {fontFamily: 'AGENCYR'});
 	pause();
 	var instructions = this.add.image(250, 175, "start");
 	instructions.setInteractive();
@@ -131,10 +132,6 @@ function mainCreate(){
 		unpause();
 	});
 	
-}
-
-function startGame(game){
-
 }
 
 function createCabinet(){
