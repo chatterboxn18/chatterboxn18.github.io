@@ -75,20 +75,29 @@ function selectionUpdate(){
 
 }
 
+//data variables
 var game = new Phaser.Game(gameConfig);
 var main;
 var name = "";
+
+//game variables
 var player;
-var level = 0; 
+var level = 1; 
 var cabinetsSpawned = 0;
 var levelTimer;
 var timerTime;
-var cursors;
-var keyPress;
-var previousBackground;
 var isPaused;
 var currentVelocity = 150;
+
+//interactivity variables
 var pointer;
+var keyPress;
+var cursors;
+
+//score variables
+var scoreTimer;
+var score = 0;
+var scoreText;
 
 function mainInit(data){
 	name = data.image;
@@ -119,10 +128,15 @@ function mainCreate(){
 		delay: 3000, 
 		callback: createCabinet, 
 		loop: true
-	})
+	});
+	scoreText = this.add.text(230, 20, "Score: " + score, {fontFamily: 'AGENCYR'});
+	scoreTimer = this.time.addEvent({
+		delay: 2000,
+		callback: addScore, 
+		loop: true
+	});
 	createPlayer(this);
 	createGround(this);
-	score = this.add.text(250, 30, "Score", {fontFamily: 'AGENCYR'});
 	pause();
 	var instructions = this.add.image(250, 175, "start");
 	instructions.setInteractive();
@@ -132,6 +146,11 @@ function mainCreate(){
 		unpause();
 	});
 	
+}
+
+function addScore(){
+	score += level * 10;
+	scoreText.setText("Score: " + score);
 }
 
 function createCabinet(){
@@ -184,20 +203,24 @@ function pause(){
 	console.log("paused");
 	main.physics.pause();
 	levelTimer.paused = true;
+	scoreTimer.paused = true;
 }
 
 function unpause(){
 	console.log("unpaused");
 	main.physics.resume();
 	levelTimer.paused = false;
+	scoreTimer.paused = false;
 }
 
 function gameover(){
 	var gameover = main.add.image(250,175, 'gameover');
 	var playagain = main.add.rectangle(165, 243, 148 , 43).setInteractive();
-	playagain.on('pointerup', () => {main.scene.start('selection');});
+	playagain.on('pointerup', () => {main.scene.start('selection'); score = 0;});
 	var watchVideo = main.add.rectangle(338, 243, 148, 43).setInteractive();
 	watchVideo.on('pointerup', () => {window.open('https://youtu.be/sk-qyR224fU');});
+	var text = main.add.text(225, 165, "Score: " + score, {fontFamily: 'AGENCYR'});
+	text.style.fontSize = 20;
 }
 
 function mainUpdate(){
