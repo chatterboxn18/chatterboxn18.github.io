@@ -1,5 +1,6 @@
 var mainSceneConfig = {
 	key: 'main', 
+	init: mainInit,
 	preload: mainPreload,
 	create: mainCreate,
 	update: mainUpdate,
@@ -41,17 +42,32 @@ var gameConfig = {
 function selectionPreload(){
 	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/');
 	this.load.image('background', 'andar-bg.png');
-	this.load.image('moonbyul', 'andar-selection-moonbyul.png');
-	this.load.image('solar', 'andar-selection-solar.png');
-	this.load.image('hwasa', 'andar-selection-hwasa.png');
-	this.load.image('wheein', 'andar-selection-wheein.png');
+	this.load.image('sel-moonbyul', 'andar-selection-moonbyul.png');
+	this.load.image('moonbyul', 'andar-moonbyul.png');
+	this.load.image('sel-solar', 'andar-selection-solar.png');
+	this.load.image('solar', 'andar-solar.png');
+	this.load.image('sel-hwasa', 'andar-selection-hwasa.png');
+	this.load.image('hwasa', 'andar-hwasa.png');
+	this.load.image('sel-wheein', 'andar-selection-wheein.png');
+	this.load.image('wheein', 'andar-wheein.png');
 
 	console.log("selection preload");
 }
 
 function selectionCreate(){
 	var background = this.add.sprite(750,175, "background");
-	var moonbyul = this.add.image(62.5, 175, 'moonbyul');
+	createButton(this,'moonbyul', 62.5);
+	createButton(this,'solar', 187.5);
+	createButton(this,'wheein', 312.5);
+	createButton(this,'hwasa', 437.5);
+}
+
+function createButton(scene, name, positionX){
+	var image = scene.add.image(positionX, 175, "sel-" + name);
+	var button = scene.add.rectangle(positionX, 175, 125, 350).setInteractive();
+	button.on('pointerover', () => { image.setTexture(name); image.displayOriginY = 150;});
+	button.on('pointerout', () => {image.setTexture('sel-' + name); image.displayOriginY = 175; });
+	button.on('pointerup', () => { scene.scene.start('main', {image: name})});
 }
 
 function selectionUpdate(){
@@ -60,6 +76,7 @@ function selectionUpdate(){
 
 var game = new Phaser.Game(gameConfig);
 var main;
+var name = "";
 var player;
 var level = 0; 
 var cabinetsSpawned = 0;
@@ -71,11 +88,15 @@ var previousBackground;
 var isPaused;
 var currentVelocity = 150;
 
+function mainInit(data){
+	name = data.image;
+}
+
 function mainPreload(){
 	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/')
 	this.load.image('background', 'andar-bg.png');
 	this.load.image('cabinet', 'andar-cabinet.png');
-	this.load.image('moonbyul', 'andar-moonbyul.png');
+	this.load.image(name, 'andar-' + name + '.png');
 	this.load.image('ground', 'andar-ground.png');
 }
 
@@ -133,7 +154,7 @@ function destroyCabinet(cabinet){
 }
 
 function createPlayer(game){
-	player = game.physics.add.sprite(75, 0, 'moonbyul');
+	player = game.physics.add.sprite(75, 0, name);
 	player.setScale(.3);
 	player.setCollideWorldBounds(true);
 }
