@@ -50,6 +50,7 @@ function selectionPreload(){
 	this.load.image('hwasa', 'andar-hwasa.png');
 	this.load.image('sel-wheein', 'andar-selection-wheein.png');
 	this.load.image('wheein', 'andar-wheein.png');
+	this.load.image('start', 'andar-instructions.png');
 
 	console.log("selection preload");
 }
@@ -60,6 +61,9 @@ function selectionCreate(){
 	createButton(this,'solar', 187.5);
 	createButton(this,'wheein', 312.5);
 	createButton(this,'hwasa', 437.5);
+	var instructions = this.add.image(250, 175, "start");
+	instructions.setInteractive();
+	instructions.on('pointerup', ()=> {instructions.setActive(false);});
 }
 
 function createButton(scene, name, positionX){
@@ -87,6 +91,7 @@ var keyPress;
 var previousBackground;
 var isPaused;
 var currentVelocity = 150;
+var pointer;
 
 function mainInit(data){
 	name = data.image;
@@ -108,7 +113,8 @@ function mainCreate(){
 	this.background.setOrigin(0);
 	this.background.setScrollFactor(0,1);
 	cursors = this.input.keyboard.createCursorKeys();
-	keyPress = this.input.keyboard.addKey('P');
+	keyPress = this.input.keyboard.addKey('SPACE');
+	pointer = this.input.activePointer;
 
 	levelTimer = this.time.addEvent({
 		delay: 3000, 
@@ -117,7 +123,7 @@ function mainCreate(){
 	})
 	createPlayer(this);
 	createGround(this);
-	createCabinet();
+	var cabinetLifeTimer = main.time.delayedCall(1000, createCabinet);
 }
 
 function createCabinet(){
@@ -154,7 +160,7 @@ function destroyCabinet(cabinet){
 }
 
 function createPlayer(game){
-	player = game.physics.add.sprite(75, 0, name);
+	player = game.physics.add.sprite(75, 170, name);
 	player.setScale(.3);
 	player.setCollideWorldBounds(true);
 }
@@ -178,13 +184,13 @@ function unpause(){
 }
 
 function mainUpdate(){
-	if (keyPress.isDown){
+	/*if (keyPress.isDown){
 		isPaused = !isPaused;
 		if (isPaused)
 			pause();
 		else
 			unpause();
-	}
+	}*/
 
 	if (isPaused)
 		return;
@@ -192,7 +198,7 @@ function mainUpdate(){
 	this.background.tilePositionX += 5;
 
 	if (player.body.touching.down){
-		if (cursors.up.isDown){
+		if (keyPress.isDown || pointer.isDown){
 			player.setVelocityY(-275);
 		}
 	}
