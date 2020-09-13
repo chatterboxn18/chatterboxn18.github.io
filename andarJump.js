@@ -50,7 +50,6 @@ function selectionPreload(){
 	this.load.image('hwasa', 'andar-hwasa.png');
 	this.load.image('sel-wheein', 'andar-selection-wheein.png');
 	this.load.image('wheein', 'andar-wheein.png');
-	this.load.image('start', 'andar-instructions.png');
 
 	console.log("selection preload");
 }
@@ -61,9 +60,7 @@ function selectionCreate(){
 	createButton(this,'solar', 187.5);
 	createButton(this,'wheein', 312.5);
 	createButton(this,'hwasa', 437.5);
-	var instructions = this.add.image(250, 175, "start");
-	instructions.setInteractive();
-	instructions.on('pointerup', ()=> {instructions.setActive(false);});
+	
 }
 
 function createButton(scene, name, positionX){
@@ -103,6 +100,8 @@ function mainPreload(){
 	this.load.image('cabinet', 'andar-cabinet.png');
 	this.load.image(name, 'andar-' + name + '.png');
 	this.load.image('ground', 'andar-ground.png');
+	this.load.image('start', 'andar-instructions.png');
+	this.load.image('gameover', 'andar-gameover.png');
 }
 
 function mainCreate(){
@@ -123,7 +122,19 @@ function mainCreate(){
 	})
 	createPlayer(this);
 	createGround(this);
-	var cabinetLifeTimer = main.time.delayedCall(1000, createCabinet);
+	pause();
+	var instructions = this.add.image(250, 175, "start");
+	instructions.setInteractive();
+	instructions.on('pointerup', ()=> {
+		instructions.destroy();
+		var cabinetLifeTimer = main.time.delayedCall(1000, createCabinet);
+		unpause();
+	});
+	
+}
+
+function startGame(game){
+
 }
 
 function createCabinet(){
@@ -152,6 +163,7 @@ function touchObject(player, object){
 		pause();
 		isPaused = true;
 		console.log("GameOver");
+		gameover();
 	}
 }
 
@@ -181,6 +193,14 @@ function unpause(){
 	console.log("unpaused");
 	main.physics.resume();
 	levelTimer.paused = false;
+}
+
+function gameover(){
+	var gameover = main.add.image(250,175, 'gameover');
+	var playagain = main.add.rectangle(165, 243, 148 , 43).setInteractive();
+	playagain.on('pointerup', () => {main.scene.start('selection');});
+	var watchVideo = main.add.rectangle(338, 243, 148, 43).setInteractive();
+	watchVideo.on('pointerup', () => {window.open('https://youtu.be/sk-qyR224fU');});
 }
 
 function mainUpdate(){
