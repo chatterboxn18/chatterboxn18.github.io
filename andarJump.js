@@ -201,7 +201,8 @@ function createCabinet(){
 }
 
 function createOpenCabinet(){
-	var cabinet = main.physics.add.sprite(530, 235, 'open-cabinet');
+	createCabinet();
+	var cabinet = main.physics.add.sprite(530, 313, 'open-cabinet');
 	cabinet.setScale(.25);
 	cabinet.body.allowGravity = false;
 	cabinet.body.setVelocityX(-currentVelocity);
