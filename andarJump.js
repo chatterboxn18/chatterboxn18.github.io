@@ -82,8 +82,8 @@ var name = "";
 
 //game variables
 var player;
-var level = 1; 
-var obstableSpawned = 0;
+var level = 0; 
+var obstacleSpawned = 0;
 var levelTimer;
 var timerTime;
 var isPaused;
@@ -128,7 +128,7 @@ function mainCreate(){
 
 	levelTimer = this.time.addEvent({
 		delay: 3000, 
-		callback: createCabinet, 
+		callback: createObstacle, 
 		loop: true
 	});
 	scoreText = this.add.text(230, 20, "Score: " + score, {fontFamily: 'AGENCYR'});
@@ -156,7 +156,7 @@ function addScore(){
 }
 
 function createObstacle(){
-	if (cabinetsSpawned%5 == 0){
+	if (obstacleSpawned%5 == 0){
 		level += 1;
 		if (currentVelocity < 250){
 			currentVelocity += 10;
@@ -188,10 +188,11 @@ function createObstacle(){
 			break;
 	}
 
-	obstableSpawned++; 
+	obstacleSpawned++; 
 }
 
 function createCabinet(){
+	console.log("create Cabinet");
 	var cabinet = main.physics.add.sprite(530, 235, 'cabinet');
 	cabinet.setScale(.25);
 	cabinet.body.allowGravity = false;
@@ -202,7 +203,7 @@ function createCabinet(){
 
 function createOpenCabinet(){
 	createCabinet();
-	var cabinet = main.physics.add.sprite(530, 313, 'open-cabinet');
+	var cabinet = main.physics.add.sprite(502, 248, 'open-cabinet');
 	cabinet.setScale(.25);
 	cabinet.body.allowGravity = false;
 	cabinet.body.setVelocityX(-currentVelocity);
@@ -212,11 +213,11 @@ function createOpenCabinet(){
 
 function createDoubleCabinet(){
 	createCabinet();
-	main.time.delayedCall(1000, createCabinet);
+	main.time.delayedCall(500, createCabinet);
 }
 
 function createDesk(){
-	var desk = main.physics.add.sprite(530, 235, 'desk');
+	var desk = main.physics.add.sprite(530, 245, 'desk');
 	desk.setScale(.25);
 	desk.body.allowGravity = false;
 	desk.body.setVelocityX(-currentVelocity);
@@ -226,7 +227,7 @@ function createDesk(){
 
 function createDoubleDesk(){
 	createDesk();
-	main.time.delayedCall(2000, createDesk);
+	main.time.delayedCall(400, createDesk);
 }
 
 function touchObject(player, object){
