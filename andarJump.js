@@ -83,7 +83,7 @@ var name = "";
 //game variables
 var player;
 var level = 1; 
-var cabinetsSpawned = 0;
+var obstableSpawned = 0;
 var levelTimer;
 var timerTime;
 var isPaused;
@@ -107,6 +107,8 @@ function mainPreload(){
 	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/')
 	this.load.image('background', 'andar-bg.png');
 	this.load.image('cabinet', 'andar-cabinet.png');
+	this.load.image('open-cabinet', 'andar-cabinet-open.png');
+	this.load.image('desk', 'andar-desk.png');
 	this.load.image(name, 'andar-' + name + '.png');
 	this.load.image('ground', 'andar-ground.png');
 	this.load.image('start', 'andar-instructions.png');
@@ -142,7 +144,7 @@ function mainCreate(){
 	instructions.setInteractive();
 	instructions.on('pointerup', ()=> {
 		instructions.destroy();
-		var cabinetLifeTimer = main.time.delayedCall(1000, createCabinet);
+		var cabinetLifeTimer = main.time.delayedCall(1000, createObstacle);
 		unpause();
 	});
 	
@@ -153,7 +155,7 @@ function addScore(){
 	scoreText.setText("Score: " + score);
 }
 
-function createCabinet(){
+function createObstacle(){
 	if (cabinetsSpawned%5 == 0){
 		level += 1;
 		if (currentVelocity < 250){
@@ -164,18 +166,70 @@ function createCabinet(){
 		}
 		console.log("Leveled up: " + currentVelocity + " "  + levelTimer.delay);
 	}
+	var spawnNumber = Phaser.Math.Between(1,level);
+	switch (spawnNumber){
+		case 1:
+			createCabinet();
+			break;
+		case 2: 
+			createDesk();
+			break;
+		case 3:
+			createOpenCabinet();
+			break;
+		case 4: 
+			createDoubleCabinet();
+			break;
+		case 5:
+			createDoubleDesk();
+			break;
+		default:
+			createCabinet();
+			break;
+	}
+
+	obstableSpawned++; 
+}
+
+function createCabinet(){
 	var cabinet = main.physics.add.sprite(530, 235, 'cabinet');
 	cabinet.setScale(.25);
 	cabinet.body.allowGravity = false;
 	cabinet.body.setVelocityX(-currentVelocity);
-	cabinet.body.onWorldBounds = true;
 	main.physics.add.collider(player, cabinet, touchObject, null, main);
-	var cabinetLifeTimer = main.time.delayedCall(5000, destroyCabinet, [cabinet]);
-	cabinetsSpawned++; 
+	main.time.delayedCall(5000, destroyObstacle, [cabinet]);
+}
+
+function createOpenCabinet(){
+	var cabinet = main.physics.add.sprite(530, 235, 'open-cabinet');
+	cabinet.setScale(.25);
+	cabinet.body.allowGravity = false;
+	cabinet.body.setVelocityX(-currentVelocity);
+	main.physics.add.collider(player, cabinet, touchObject, null, main);
+	main.time.delayedCall(5000, destroyObstacle, [cabinet]);
+}
+
+function createDoubleCabinet(){
+	createCabinet();
+	main.time.delayedCall(1000, createCabinet);
+}
+
+function createDesk(){
+	var desk = main.physics.add.sprite(530, 235, 'desk');
+	desk.setScale(.25);
+	desk.body.allowGravity = false;
+	desk.body.setVelocityX(-currentVelocity);
+	main.physics.add.collider(player, desk, touchObject, null, main);
+	main.time.delayedCall(5000, destroyObstacle, [desk]);
+}
+
+function createDoubleDesk(){
+	createDesk();
+	main.time.delayedCall(2000, createDesk);
 }
 
 function touchObject(player, object){
-	if (player.body.touching.right || player.body.touching.up || player.body.touching.left){
+	if (player.body.touching.right || player.body.touching.down || player.body.touching.left){
 		pause();
 		isPaused = true;
 		console.log("GameOver");
@@ -183,8 +237,8 @@ function touchObject(player, object){
 	}
 }
 
-function destroyCabinet(cabinet){
-	cabinet.destroy(main);
+function destroyObstacle(obstacle){
+	obstacle.destroy(main);
 }
 
 function createPlayer(game){
@@ -216,7 +270,7 @@ function unpause(){
 function gameover(){
 	var gameover = main.add.image(250,175, 'gameover');
 	var playagain = main.add.rectangle(165, 243, 148 , 43).setInteractive();
-	playagain.on('pointerup', () => {main.scene.start('selection'); score = 0;});
+	playagain.on('pointerup', () => {main.scene.start('selection'); score = 0; level = 1;});
 	var watchVideo = main.add.rectangle(338, 243, 148, 43).setInteractive();
 	watchVideo.on('pointerup', () => {window.open('https://youtu.be/sk-qyR224fU');});
 	var text = main.add.text(225, 165, "Score: " + score, {fontFamily: 'AGENCYR'});
@@ -224,14 +278,6 @@ function gameover(){
 }
 
 function mainUpdate(){
-	/*if (keyPress.isDown){
-		isPaused = !isPaused;
-		if (isPaused)
-			pause();
-		else
-			unpause();
-	}*/
-
 	if (isPaused)
 		return;
 
