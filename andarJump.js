@@ -50,7 +50,7 @@ function selectionPreload(){
 	this.load.image('hwasa', 'andar-hwasa.png');
 	this.load.image('sel-wheein', 'andar-selection-wheein.png');
 	this.load.image('wheein', 'andar-wheein.png');
-	this.load.image('selection', 'text-selection.png');
+	this.load.image('select-text', 'text-selection.png');
 
 	console.log("selection preload");
 }
@@ -61,7 +61,7 @@ function selectionCreate(){
 	createButton(this,'solar', 187.5);
 	createButton(this,'wheein', 312.5);
 	createButton(this,'hwasa', 437.5);
-	var image = scene.add.image(250, 280, 'selection').setOrigin(0.5);
+	var image = this.add.image(250, 300, 'select-text').setOrigin(0.5);
 	
 }
 
@@ -163,7 +163,7 @@ function createObstacle(){
 		if (currentVelocity < 250){
 			currentVelocity += 10;
 		}
-		if (levelTimer.delay >1400){
+		if (levelTimer.delay >2000){
 			levelTimer.delay -= 200;
 		}
 		console.log("Leveled up: " + currentVelocity + " "  + levelTimer.delay);
@@ -194,7 +194,6 @@ function createObstacle(){
 }
 
 function createCabinet(){
-	console.log("create Cabinet");
 	var cabinet = main.physics.add.sprite(530, 235, 'cabinet');
 	cabinet.setScale(.25);
 	cabinet.body.allowGravity = false;
