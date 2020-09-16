@@ -50,6 +50,7 @@ function selectionPreload(){
 	this.load.image('hwasa', 'andar-hwasa.png');
 	this.load.image('sel-wheein', 'andar-selection-wheein.png');
 	this.load.image('wheein', 'andar-wheein.png');
+	this.load.image('selection', 'text-selection.png');
 
 	console.log("selection preload");
 }
@@ -60,6 +61,7 @@ function selectionCreate(){
 	createButton(this,'solar', 187.5);
 	createButton(this,'wheein', 312.5);
 	createButton(this,'hwasa', 437.5);
+	var image = scene.add.image(250, 280, 'selection').setOrigin(0.5);
 	
 }
 
@@ -161,7 +163,7 @@ function createObstacle(){
 		if (currentVelocity < 250){
 			currentVelocity += 10;
 		}
-		if (levelTimer.delay >2000){
+		if (levelTimer.delay >1400){
 			levelTimer.delay -= 200;
 		}
 		console.log("Leveled up: " + currentVelocity + " "  + levelTimer.delay);
@@ -273,8 +275,11 @@ function gameover(){
 	var gameover = main.add.image(250,175, 'gameover');
 	var playagain = main.add.rectangle(165, 243, 148 , 43).setInteractive();
 	playagain.on('pointerup', () => {main.scene.start('selection'); score = 0; level = 1;});
-	var watchVideo = main.add.rectangle(338, 243, 148, 43).setInteractive();
-	watchVideo.on('pointerup', () => {window.open('https://youtu.be/sk-qyR224fU');});
+	var tweetScore = main.add.rectangle(338, 243, 148, 43).setInteractive();
+	var tweet = "I scored: " + score + " in MAMAMOO Andar Jump (moomooarcade.github.io) while streaming 'WANNA BE MYSELF' (bit.ly/3hoUcfn) #MAMAMOO #마마무 @RBW_MAMAMOO";
+	//watchVideo.on('pointerup', () => {window.open('https://youtu.be/sk-qyR224fU');});
+	var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweet);
+	tweetScore.on('pointerup', () => {window.open(url, '_bank');});
 	var text = main.add.text(250, 165, "Score: " + score, {fontFamily: 'AGENCYR'}).setOrigin(0.5);
 	text.style.fontSize = 20;
 }

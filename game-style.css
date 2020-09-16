@@ -20,7 +20,6 @@ body {
 	width: 100%;
 	height: 100%;
 	background-color: #e5ffe6;
-	margin-bottom: 100px;
 }
 
 .header{
@@ -38,7 +37,7 @@ body {
 	overflow: hidden;
 	background-color: #85c55f;
 	display: grid;
-	grid-template-columns: repeat(4, 150px);
+	grid-template-columns: repeat(6, 150px);
 	justify-content: center;
 }
 
@@ -48,6 +47,17 @@ body {
 	width: 25%;
 	padding: 14px 16px;
 	text-decoration: none;
+}
+
+.contentHeader {
+	display: flex;
+}
+
+.contentHeader b{
+	width: 100%;
+	text-align: center;
+	font-size: 50px;
+	color: #4c9c85;
 }
 
 .topnav:after {
@@ -67,7 +77,6 @@ body {
 .mainContent{
 	width: 1200px;
 	height: 600px;
-	margin-bottom: 100px;
 }
 .rightSidebar{
 	padding: 10px;
@@ -119,7 +128,6 @@ body {
 	padding: 20px;
 	bottom: 0;
 	position: fixed;
-	margin-top: 100px;
 	text-align: center;
 	background: #939393;
 	width: 100%
@@ -136,9 +144,8 @@ body {
   display:flex;
   justify-content: center;
   align-items: center;
-  width: 550px;
+  width: 530px;
   padding: 10px;
-  min-width: 550px;
 }
 
 @media screen and (max-width: 1200px){
@@ -147,6 +154,12 @@ body {
 	}
 	.rightSidebar{
 		width: 0%;
+	}
+	.mainContent{
+		margin-bottom: 100px;
+	}
+	body{
+		margin-bottom: 100px;
 	}
 }
 
