@@ -26,7 +26,7 @@ var selectionScene = new Phaser.Scene(selectionSceneConfig);
 
 var gameConfig = {
 	type: Phaser.CANVAS, 
-	parent: 'mainContent',
+	parent: 'gameContent',
 	width: 500, 
 	height: 350, 
 	physics: {
@@ -131,7 +131,7 @@ function mainCreate(){
 		callback: createObstacle, 
 		loop: true
 	});
-	scoreText = this.add.text(230, 20, "Score: " + score, {fontFamily: 'AGENCYR'});
+	scoreText = this.add.text(250, 20, "Score: " + score, {fontFamily: 'AGENCYR'}).setOrigin(0.5);
 	scoreTimer = this.time.addEvent({
 		delay: 2000,
 		callback: addScore, 
@@ -275,7 +275,7 @@ function gameover(){
 	playagain.on('pointerup', () => {main.scene.start('selection'); score = 0; level = 1;});
 	var watchVideo = main.add.rectangle(338, 243, 148, 43).setInteractive();
 	watchVideo.on('pointerup', () => {window.open('https://youtu.be/sk-qyR224fU');});
-	var text = main.add.text(225, 165, "Score: " + score, {fontFamily: 'AGENCYR'});
+	var text = main.add.text(250, 165, "Score: " + score, {fontFamily: 'AGENCYR'}).setOrigin(0.5);
 	text.style.fontSize = 20;
 }
 
