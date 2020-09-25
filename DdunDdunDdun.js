@@ -103,46 +103,50 @@ function createLevel(){
 	for (var i = 0; i < (totalCharacters/10) + 1; i++){
 		var list = []; 
 		var tList = [];
-		var spaceIndex = Phaser.Math.Between(0,11);
-		var tileType = Phaser.Math.Between(0,1);
+		var spaceIndex = Phaser.Math.Between(0,10);
+		var tileType = Phaser.Math.Between(0,2);
 		for (var j = 0; j < 12; j++){
 			if (j == spaceIndex || j == spaceIndex + 1){
 				tList.push(-1);
 				list.push(-1);
 			}
 			else if (j == 0 || j == spaceIndex + 2){
-				tileType == 0? tList.push(3) : tList.push(0);
+				tList.push(tileType * 2);
 				list.push(index);
 				index++;
 			}
 			else if (j == spaceIndex-1 || j == 11){
-				tileType == 0? tList.push(5) : tList.push(2);
+				tList.push(tileType * 2+ 2);
 				list.push(index);
 				index++;
 			}
 			else {
-				tileType == 0? tList.push(4) : tList.push(1);
+				tList.push(tileType * 2+ 1);
 				list.push(index);
 				index++;
 			}
 		}
+		console.log(tList);
 		ultList.push(list);
+		var randomTile = Phaser.Math.Between(0,11);
 		ultList.push(emptyLine);
 		ultList.push(emptyLine);
 		tileList.push(tList);
+		var walkingLine = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+		if (list[randomTile] != -1) walkingLine[randomTile] = 9;
 		tileList.push(emptyLine);
-		tileList.push(emptyLine);
+		tileList.push(walkingLine);
 	}
 	var map = main.make.tilemap({data: tileList, tileWidth: 32, tileHeight:32});
 	var tiles = map.addTilesetImage('block-tiles');
 	tileLines = map.createStaticLayer(0, tiles, 0,0);
 	tileLines.setPosition(0,300);
-	tileLines.setCollisionBetween(0,100);
+	tileLines.setCollisionByExclusion([-1]);
 	return ultList;
 }
 
 function createPlayer(){
-	player = main.physics.add.sprite(16, 0, 'solar');
+	player = main.physics.add.sprite(16, 0, 'solar', 'FFFFFF', {restitution: 1, friction: 1});
 	player.setCollideWorldBounds(true);
 	return player;
 }
@@ -154,7 +158,13 @@ function mainUpdate(){
 		lyricLines.setPosition(0, lastPos - 1);
 		tileLines.setPosition(0,lastPos -1);
 	}
-	if (cursors.right.isDown){
+	if (cursors.up.isDown){
+		if (player.body.blocked.down)
+		{
+			player.setVelocityY(-400);
+		}
+	}
+	else if (cursors.right.isDown){
 		player.setVelocityX(300);
 	}
 	else if (cursors.left.isDown){
