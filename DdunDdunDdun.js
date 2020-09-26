@@ -79,7 +79,7 @@ function mainPreload(){
 	this.load.image('lyrics-tiles','ddunddun/ddunlyrics-black.png');
 	this.load.image('block-tiles','ddunddun/tilesheets/blocks-tile.png');
 	this.load.image('solar','ddunddun/sprite.png');
-	totalCharacters = 368;
+	totalCharacters = 380;
 }
 
 function mainCreate(){
@@ -91,6 +91,9 @@ function mainCreate(){
 	lyricLines = map.createStaticLayer(0, tiles, 0,0);
 	lyricLines.setPosition(0, 300);
 	player = createPlayer();
+	var playerBody = player.body;
+	playerBody.setSize(10,32);
+	playerBody.setOffset(9, 0);
 	main.physics.add.collider(player, tileLines);
 	cursors = this.input.keyboard.createCursorKeys();
 }
@@ -111,31 +114,35 @@ function createLevel(){
 				list.push(-1);
 			}
 			else if (j == 0 || j == spaceIndex + 2){
-				tList.push(tileType * 2);
+				tList.push(tileType * 3);
 				list.push(index);
 				index++;
 			}
 			else if (j == spaceIndex-1 || j == 11){
-				tList.push(tileType * 2+ 2);
+				tList.push(tileType * 3+ 2);
 				list.push(index);
 				index++;
 			}
 			else {
-				tList.push(tileType * 2+ 1);
+				tList.push(tileType * 3+ 1);
 				list.push(index);
 				index++;
 			}
 		}
+		ultList.push(emptyLine);
+		ultList.push(emptyLine);
+		ultList.push(emptyLine);
 		console.log(tList);
 		ultList.push(list);
 		var randomTile = Phaser.Math.Between(0,11);
-		ultList.push(emptyLine);
-		ultList.push(emptyLine);
-		tileList.push(tList);
 		var walkingLine = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 		if (list[randomTile] != -1) walkingLine[randomTile] = 9;
+		console.log(walkingLine);
+		tileList.push(emptyLine);
 		tileList.push(emptyLine);
 		tileList.push(walkingLine);
+		tileList.push(tList);
+		
 	}
 	var map = main.make.tilemap({data: tileList, tileWidth: 32, tileHeight:32});
 	var tiles = map.addTilesetImage('block-tiles');
@@ -153,7 +160,7 @@ function createPlayer(){
 
 function mainUpdate(){
 	var lastPos = lyricLines.y;
-	if (lastPos > -1 * lyricLines.height + gameConfig.height)
+	if (cursors.down.isDown && lastPos > -1 * lyricLines.height + gameConfig.height)
 	{
 		lyricLines.setPosition(0, lastPos - 1);
 		tileLines.setPosition(0,lastPos -1);
@@ -161,16 +168,17 @@ function mainUpdate(){
 	if (cursors.up.isDown){
 		if (player.body.blocked.down)
 		{
-			player.setVelocityY(-400);
+			player.setVelocityY(-275);
 		}
 	}
-	else if (cursors.right.isDown){
-		player.setVelocityX(300);
+	if (cursors.right.isDown){
+		player.setVelocityX(200);
 	}
 	else if (cursors.left.isDown){
-		player.setVelocityX(-300);
+		player.setVelocityX(-200);
 	}
 	else{
-		player.setVelocityX(0);
+		if (player.body.blocked.down)
+			player.setVelocityX(0);
 	}
 }
