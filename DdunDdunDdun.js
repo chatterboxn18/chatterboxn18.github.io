@@ -47,7 +47,7 @@ function startPreload(){
 
 function startCreate(){
 	var background = this.add.sprite(0,0, 'selection-bg').setOrigin(0);
-	var image = this.add.image(192, 256, 'selection-start').setOrigin(0.5);
+	var image = this.add.image(200, 390, 'selection-start').setOrigin(0.5);
 	image.setInteractive();
 	image.on('pointerup', () => { this.scene.start('main')});
 }
@@ -60,7 +60,8 @@ function startUpdate(){
 var game = new Phaser.Game(gameConfig);
 var main;
 var name = "";
-var player;
+var player1;
+var player2;
 
 var lyricLines;
 var tileLines;
@@ -102,24 +103,102 @@ function mainCreate(){
 	var tiles = map.addTilesetImage('lyrics-tiles');
 	lyricLines = map.createStaticLayer(0, tiles, 0,0);
 	lyricLines.setPosition(0, 300);
-	player = createPlayer();
-	var playerBody = player.body;
-	playerBody.setSize(10,32);
-	playerBody.setOffset(9, 0);
-	playerBody.checkCollision.left = true;
-	playerBody.checkCollision.right = true;
-	main.physics.add.collider(player, tileLines);
+	
+	var Player = new Phaser.Class({
+
+		initialize:
+
+		function Player(scene, x, y, name){
+			this.scene = scene;
+			this.character = scene.physics.add.sprite(32, 32, name, 'FFFFFF', {restitution: 1, friction: 1});
+			this.name = name;
+			scene.anims.create({
+		        key: this.name + '-right',
+		        frames: scene.anims.generateFrameNumbers(name, { start: 2, end: 3 }),
+		        frameRate: 5,
+		        repeat: -1
+	    	});
+	   		scene.anims.create({
+		        key: this.name + '-left',
+		        frames: scene.anims.generateFrameNumbers(name, { start: 0, end: 1 }),
+		        frameRate: 5,
+		        repeat: -1
+	    	});
+
+	   		this.active = false;
+
+	    	this.body = this.character.body;
+	    	this.body.setSize(10,32);
+	    	this.body.setOffset(10, 0);
+
+	    	//collision checks
+	    	this.body.setCollideWorldBounds(true);
+	    	this.body.checkCollision.left = true;
+	    	this.body.checkCollision.right = true;
+
+	    	this.jumpSpeed = -275;
+	    	this.movementSpeed = 200;
+		},
+
+		update: function() {
+
+		},
+
+		moveLeft: function(){
+			console.log("left");
+			this.character.play(this.name + '-left');
+			this.character.setVelocityX(-1 * this.movementSpeed);
+		},
+
+		moveRight: function(){
+			console.log("right");
+			this.character.play(this.name + '-right');
+			this.character.setVelocityX(this.movementSpeed);
+		},
+
+		stopped: function(isTileCollision){
+			console.log("stop");
+			if (isTileCollision) {
+				if (this.body.blocked.down){
+					this.character.setVelocityX(0);
+				}
+			}
+			else{
+				if (this.body.touching.down){
+					this.character.setVelocityX(0);
+				}
+			}
+		}, 
+
+		jump: function(){
+			console.log("jump");
+			if (this.character.body.blocked.down)
+			{
+				this.character.setVelocityY(-275);
+			}
+		},
+
+		gameOver: function(){
+			this.character.destroy(this.scene);
+		}
+
+	});
+
+	player1 = new Player(this, 32,32, 'solar');
+
+	main.physics.add.collider(player1, tileLines);
 	cursors = this.input.keyboard.createCursorKeys();
 	createCoins();
 
 	scoreText = this.add.text(32,32, "재미 웃음 포인트: " + score + "/" + totalCharacters/10);
+	scoreText.setColor("#000000");
 }
 
 function createCoins(){
 	for (var i = 0; i < totalCharacters/10; i++){
 		var randomX = Phaser.Math.Between(0,11);
 		var coin = main.physics.add.sprite(randomX * 32 + 16, i * 32 * 4 + 256, 'solar-coin');
-		main.physics.add.collider(player, coin, collectCoins, null, main);
+		main.physics.add.collider(player1, coin, collectCoins, null, main);
 		main.physics.add.collider(coin, tileLines);
 	}
 }
@@ -182,29 +261,10 @@ function createLevel(){
 	return ultList;
 }
 
-function createPlayer(){
-	player = main.physics.add.sprite(32, 32, 'solar', 'FFFFFF', {restitution: 1, friction: 1});
-	main.anims.create({
-        key: 'right',
-        frames: main.anims.generateFrameNumbers('solar', { start: 2, end: 3 }),
-        frameRate: 5,
-        repeat: -1
-    });
-    main.anims.create({
-        key: 'left',
-        frames: main.anims.generateFrameNumbers('solar', { start: 0, end: 1 }),
-        frameRate: 5,
-        repeat: -1
-    });
-    player.play('right');
-	player.setCollideWorldBounds(true);
-	return player;
-}
-
 function mainUpdate(){
-	if (player.y < 5){
+	if (player1.character.y < 5){
 		console.log("lose");
-		player.destroy(main);
+		player1.gameOver();
 		return;
 	}
 
@@ -217,21 +277,15 @@ function mainUpdate(){
 		tileLines.setPosition(0,lastPos -1.2);
 	}
 	if (cursors.up.isDown){
-		if (player.body.blocked.down)
-		{
-			player.setVelocityY(-275);
-		}
+		player1.jump();
 	}
 	if (cursors.right.isDown){
-		player.play('right');
-		player.setVelocityX(200);
+		player1.moveRight();
 	}
 	else if (cursors.left.isDown){
-		player.play('left');
-		player.setVelocityX(-200);
+		player1.moveLeft();
 	}
 	else{
-		if (player.body.blocked.down)
-			player.setVelocityX(0);
+		player1.stopped(true);
 	}
 }
