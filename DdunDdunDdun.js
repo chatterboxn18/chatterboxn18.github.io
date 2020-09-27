@@ -54,12 +54,12 @@ function startCreate(){
 	var background = this.add.sprite(0,0, 'selection-bg').setOrigin(0);
 	var lyrics = this.add.image(200, 430, 'lyrics').setOrigin(0.5);
 	lyrics.setInteractive();
-	lyrics.on('pointerup', () => { gameType = 'lyrics'; this.scene.start('main'); lyrics.destroy(this);});
+	lyrics.on('pointerup', () => { gameType = 'lyrics'; this.scene.start('main'); lyrics.destroy(this); if (play) play.destroy(this);});
 	lyrics.on('pointerover', () => { lyrics.setScale(1.1);});
 	lyrics.on('pointerout', () => { lyrics.setScale(1.0);});
 	var play = this.add.image(200, 380, 'selection-start').setOrigin(0.5);
 	play.setInteractive();
-	play.on('pointerup', () => { playerMenu(this); play.destroy(this);});
+	play.on('pointerup', () => { playerMenu(this); play.destroy(this); if (lyrics) lyrics.destroy(this);});
 	play.on('pointerover', () => { play.setScale(1.1);});
 	play.on('pointerout', () => { play.setScale(1.0);});
 }
@@ -264,7 +264,7 @@ function createCoins(){
 		if (gameType == '2Player'){
 			var coin2 = main.physics.add.sprite((12-randomX) * 32 + 16, i * 32 * 4 + 256, 'mb-coin');
 			main.physics.add.collider(player2, coin2, collectCoins, null, main);
-			main.physics.add.collider(coin2, coin1);
+			main.physics.add.collider(coin2, coin);
 			main.physics.add.collider(coin2, tileLines);
 		}
 	}
@@ -273,7 +273,12 @@ function createCoins(){
 function collectCoins(player, coin){
 	coin.destroy(main);
 	score++;
-	scoreText.setText( "재미 웃음 포인트: " + score + "/" + (gameType == '2Player') ? totalCharacters/5 : totalCharacters/10);
+	var total = 0;
+	if (gameType == '2Player') 
+		total = totalCharacters/5;
+	else
+		total = totalCharacters/10;
+	scoreText.setText( "재미 웃음 포인트: " + score + "/" + total);
 }
 
 function createLevel(){
