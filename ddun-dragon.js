@@ -1,9 +1,9 @@
 var config = {
     type: Phaser.WEBGL,
-    width: 1280,
-    height: 960,
-    backgroundColor: '#bfcc00',
-    parent: 'phaser-example',
+    width: 960,
+    height: 640,
+    backgroundColor: '#ff88da',
+    parent: 'gameContent',
     scene: {
         preload: preload,
         create: create,
@@ -25,9 +25,9 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
-    this.load.image('food', 'assets/games/snake/food.png');
     this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/');
-    this.load.image('body','ddunddun/sprite.png');
+    this.load.image('coin', 'ddunddun/coin.png');
+    this.load.spritesheet('body', 'ddunddun/ddun-sprites.png', { frameWidth: 32, frameHeight: 32 });
 }
 
 function create ()
@@ -42,7 +42,7 @@ function create ()
         {
             Phaser.GameObjects.Image.call(this, scene)
 
-            this.setTexture('food');
+            this.setTexture('coin');
             this.setPosition(x * 32, y * 32);
             this.setOrigin(0);
 
@@ -54,11 +54,6 @@ function create ()
         eat: function ()
         {
             this.total++;
-
-            var x = Phaser.Math.Between(0, 29);
-            var y = Phaser.Math.Between(0, 19);
-
-            this.setPosition(x * 32, y * 32);
         }
 
     });
@@ -73,7 +68,20 @@ function create ()
 
             this.body = scene.add.group();
 
-            this.head = this.body.create(x * 32, y * 32, 'body');
+            this.head = this.body.create(x * 32, y * 32, 'body', 2);
+            scene.anims.create({
+                key: 'solar',
+                frames: scene.anims.generateFrameNumbers('body', { start: 2, end: 3 }),
+                frameRate: 5,
+                repeat: -1
+            });
+            scene.anims.create({
+                key: 'moonbyul',
+                frames: scene.anims.generateFrameNumbers('body', { start: 0, end: 1 }),
+                frameRate: 5,
+                repeat: -1
+            });
+            this.head.play('solar');
             this.head.setOrigin(0);
 
             this.alive = true;
@@ -161,16 +169,38 @@ function create ()
             //  Update the body segments and place the last coordinate into this.tail
             Phaser.Actions.ShiftPosition(this.body.getChildren(), this.headPosition.x * 32, this.headPosition.y * 32, 1, this.tail);
 
-            //  Update the timer ready for the next movement
-            this.moveTime = time + this.speed;
+            //  Check to see if any of the body pieces have the same x/y as the head
+            //  If they do, the head ran into the body
 
-            return true;
+            var hitBody = Phaser.Actions.GetFirst(this.body.getChildren(), { x: this.head.x, y: this.head.y }, 1);
+
+            if (hitBody)
+            {
+                console.log('dead');
+
+                this.alive = false;
+
+                return false;
+            }
+            else
+            {
+                //  Update the timer ready for the next movement
+                this.moveTime = time + this.speed;
+
+                return true;
+            }
         },
 
         grow: function ()
         {
             var newPart = this.body.create(this.tail.x, this.tail.y, 'body');
-
+            var count = this.body.getLength();
+            if (count%2 == 1){
+                newPart.play('solar');
+            }
+            else{
+                newPart.play('moonbyul');
+            }
             newPart.setOrigin(0);
         },
 
@@ -182,12 +212,33 @@ function create ()
 
                 food.eat();
 
+                //  For every 5 items of food eaten we'll increase the snake speed a little
+                if (this.speed > 20 && food.total % 5 === 0)
+                {
+                    this.speed -= 5;
+                }
+
                 return true;
             }
             else
             {
                 return false;
             }
+        },
+
+        updateGrid: function (grid)
+        {
+            //  Remove all body pieces from valid positions list
+            this.body.children.each(function (segment) {
+
+                var bx = segment.x / 32;
+                var by = segment.y / 32;
+
+                grid[by][bx] = false;
+
+            });
+
+            return grid;
         }
 
     });
@@ -235,7 +286,69 @@ function update (time, delta)
     {
         //  If the snake updated, we need to check for collision against food
 
-        snake.collideWithFood(food);
+        if (snake.collideWithFood(food))
+        {
+            repositionFood();
+        }
     }
 }
-s
+
+/**
+* We can place the food anywhere in our 40x30 grid
+* *except* on-top of the snake, so we need
+* to filter those out of the possible food locations.
+* If there aren't any locations left, they've won!
+*
+* @method repositionFood
+* @return {boolean} true if the food was placed, otherwise false
+*/
+function repositionFood ()
+{
+    //  First create an array that assumes all positions
+    //  are valid for the new piece of food
+
+    //  A Grid we'll use to reposition the food each time it's eaten
+    var testGrid = [];
+
+    for (var y = 0; y < 20; y++)
+    {
+        testGrid[y] = [];
+
+        for (var x = 0; x < 30; x++)
+        {
+            testGrid[y][x] = true;
+        }
+    }
+
+    snake.updateGrid(testGrid);
+
+    //  Purge out false positions
+    var validLocations = [];
+
+    for (var y = 0; y < 20; y++)
+    {
+        for (var x = 0; x < 30; x++)
+        {
+            if (testGrid[y][x] === true)
+            {
+                //  Is this position valid for food? If so, add it here ...
+                validLocations.push({ x: x, y: y });
+            }
+        }
+    }
+
+    if (validLocations.length > 0)
+    {
+        //  Use the RNG to pick a random food position
+        var pos = Phaser.Math.RND.pick(validLocations);
+
+        //  And place it
+        food.setPosition(pos.x * 32, pos.y * 32);
+
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
