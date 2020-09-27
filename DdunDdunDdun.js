@@ -122,7 +122,7 @@ function mainPreload(){
 	this.load.image('block-tiles','ddunddun/tilesheets/blocks-tile.png');
     this.load.image('solar-coin', 'ddunddun/solar-coin.png');
     this.load.image('mb-coin', 'ddunddun/mb-coin.png');
-    this.load.image('lyrics', 'ddunddun/lyrics.png');
+    this.load.image('lyrics-sheet', 'ddunddun/lyrics.png');
     this.load.spritesheet('solar', 'ddunddun/ddun-sprites.png', { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('moonbyul', 'ddunddun/ddun-mb-sprites.png', { frameWidth: 32, frameHeight: 32 });
 	totalCharacters = 380;
@@ -138,11 +138,13 @@ function mainCreate(){
 
 	if (gameType == 'lyrics'){
 
-		lyrics = this.add.tileSprite(0,0,384,1880,'lyrics');
+		lyrics = this.add.tileSprite(0,0,384,1880,'lyrics-sheet');
 		lyrics.setOrigin(0);
 		lyrics.setScrollFactor(0,1);
 
 		cursors = this.input.keyboard.createCursorKeys();
+
+
 		return;
 	}
 
@@ -329,7 +331,7 @@ function createLevel(){
 
 function mainUpdate(){
 	if (gameType == 'lyrics'){
-		if (cursors.down.isDown && lyrics.tilePositionY < lyrics.height)
+		if (cursors.down.isDown && lyrics.tilePositionY < 1400)
 		{
 			lyrics.tilePositionY += 2;
 		}
