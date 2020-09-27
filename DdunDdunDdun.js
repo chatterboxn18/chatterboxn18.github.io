@@ -52,7 +52,11 @@ function startPreload(){
 
 function startCreate(){
 	var background = this.add.sprite(0,0, 'selection-bg').setOrigin(0);
-	//var lyrics = this.add.image(200, 430, 'lyrics').setOrigin(0.5);
+	var lyrics = this.add.image(200, 430, 'lyrics').setOrigin(0.5);
+	lyrics.setInteractive();
+	lyrics.on('pointerup', () => { gameType = 'lyrics'; this.scene.start('main'); lyrics.destroy(this);});
+	lyrics.on('pointerover', () => { lyrics.setScale(1.1);});
+	lyrics.on('pointerout', () => { lyrics.setScale(1.0);});
 	var play = this.add.image(200, 380, 'selection-start').setOrigin(0.5);
 	play.setInteractive();
 	play.on('pointerup', () => { playerMenu(this); play.destroy(this);});
@@ -103,6 +107,8 @@ var score = 0;
 
 var background;
 
+var lyrics;
+
 var isTwoPlayer = false;
 
 function mainInit(data){
@@ -116,6 +122,7 @@ function mainPreload(){
 	this.load.image('block-tiles','ddunddun/tilesheets/blocks-tile.png');
     this.load.image('solar-coin', 'ddunddun/solar-coin.png');
     this.load.image('mb-coin', 'ddunddun/mb-coin.png');
+    this.load.image('lyrics', 'ddunddun/lyrics.png');
     this.load.spritesheet('solar', 'ddunddun/ddun-sprites.png', { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('moonbyul', 'ddunddun/ddun-mb-sprites.png', { frameWidth: 32, frameHeight: 32 });
 	totalCharacters = 380;
@@ -128,6 +135,16 @@ function mainCreate(){
 	background = this.add.tileSprite(0,0, 384, 1536, "main-bg");
 	background.setOrigin(0);
 	background.setScrollFactor(0,1);
+
+	if (gameType == 'lyrics'){
+
+		lyrics = this.add.tileSprite(0,0,384,1880,'lyrics');
+		lyrics.setOrigin(0);
+		lyrics.setScrollFactor(0,1);
+
+		cursors = this.input.keyboard.createCursorKeys();
+		return;
+	}
 
 	var lvl = createLevel();
 	var map = this.make.tilemap({data:lvl, tileWidth: 32, tileHeight: 32});
@@ -211,11 +228,13 @@ function mainCreate(){
 
 	});
 
-	player1 = new Player(this, 32,32, 'solar');
+	var startingX = 32;
+	if (gameType == '2Player') startingX = gameConfig.width -32;
+	player1 = new Player(this, startingX,32, 'solar');
 	main.physics.add.collider(player1, tileLines);
 
 	if (gameType == '2Player'){
-		player2 = new Player(this, 358-32, 32, 'moonbyul');
+		player2 = new Player(this, 32, 32, 'moonbyul');
 		main.physics.add.collider(player2, tileLines);
 	}
 
@@ -243,6 +262,7 @@ function createCoins(){
 		if (gameType == '2Player'){
 			var coin2 = main.physics.add.sprite((12-randomX) * 32 + 16, i * 32 * 4 + 256, 'mb-coin');
 			main.physics.add.collider(player2, coin2, collectCoins, null, main);
+			main.physics.add.collider(coin2, coin1);
 			main.physics.add.collider(coin2, tileLines);
 		}
 	}
@@ -251,7 +271,7 @@ function createCoins(){
 function collectCoins(player, coin){
 	coin.destroy(main);
 	score++;
-	scoreText.setText( "재미 웃음 포인트: " + score + "/" + totalCharacters/10);
+	scoreText.setText( "재미 웃음 포인트: " + score + "/" + (gameType == '2Player') ? totalCharacters/5 : totalCharacters/10);
 }
 
 function createLevel(){
@@ -298,6 +318,7 @@ function createLevel(){
 		tileList.push(tList);
 		
 	}
+	console.log(tileList);
 	var map = main.make.tilemap({data: tileList, tileWidth: 32, tileHeight:32});
 	var tiles = map.addTilesetImage('block-tiles');
 	tileLines = map.createStaticLayer(0, tiles, 0,0);
@@ -307,6 +328,17 @@ function createLevel(){
 }
 
 function mainUpdate(){
+	if (gameType == 'lyrics'){
+		if (cursors.down.isDown && lyrics.tilePositionY < lyrics.height)
+		{
+			lyrics.tilePositionY += 2;
+		}
+		else if (cursors.up.isDown && lyrics.tilePositionY > 0){
+			lyrics.tilePositionY -= 2;
+		}
+		background.tilePositionY += 1.2;
+		return;
+	}
 	if (player1.character.y < 5){
 		console.log("lose");
 		player1.gameOver();
@@ -315,13 +347,15 @@ function mainUpdate(){
 		return;
 	}
 
-	if (player2.character.y < 5){
-		console.log("lose");
-		player1.gameOver();
-		player2.gameOver();
-		return;
+	if (gameType == '2Player'){
+		if (player2.character.y < 5){
+			console.log("lose");
+			player1.gameOver();
+			player2.gameOver();
+			return;
+		}	
 	}
-
+	
 	background.tilePositionY += 1.2;
 
 	var lastPos = lyricLines.y;
