@@ -75,6 +75,8 @@ var score = 0;
 
 var background;
 
+var isTwoPlayer = false;
+
 function mainInit(data){
 	name = data.image;
 }
@@ -145,13 +147,11 @@ function mainCreate(){
 		},
 
 		moveLeft: function(){
-			console.log("left");
 			this.character.play(this.name + '-left');
 			this.character.setVelocityX(-1 * this.movementSpeed);
 		},
 
 		moveRight: function(){
-			console.log("right");
 			this.character.play(this.name + '-right');
 			this.character.setVelocityX(this.movementSpeed);
 		},
@@ -200,6 +200,12 @@ function createCoins(){
 		var coin = main.physics.add.sprite(randomX * 32 + 16, i * 32 * 4 + 256, 'solar-coin');
 		main.physics.add.collider(player1, coin, collectCoins, null, main);
 		main.physics.add.collider(coin, tileLines);
+
+		if (isTwoPlayer){
+			var coin2 = main.physics.add.sprite((12-randomX) * 32, + 16, i * 32 * 4 + 256, 'mb-coin');
+			main.physics.add.collider(player2, coin2, collectCoins, null, main);
+			main.physics.add.collider(coin2, tileLines);
+		}
 	}
 }
 
