@@ -39,17 +39,44 @@ var gameConfig = {
 	scene: [startSceneConfig, mainSceneConfig]
 }
 
+var gameType;
+
 function startPreload(){
 	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/');
 	this.load.image('selection-bg','ddunddun/ddun-selection-bg.png');
-	this.load.image('selection-start','ddunddun/ddun-selection-start.png');
+	this.load.image('selection-start','ddunddun/en-play.png');
+	this.load.image('lyrics','ddunddun/en-lyrics.png');
+	this.load.image('player1','ddunddun/en-player1.png');
+	this.load.image('player2','ddunddun/en-player2.png');
 }
 
 function startCreate(){
 	var background = this.add.sprite(0,0, 'selection-bg').setOrigin(0);
-	var image = this.add.image(200, 390, 'selection-start').setOrigin(0.5);
-	image.setInteractive();
-	image.on('pointerup', () => { this.scene.start('main')});
+	//var lyrics = this.add.image(200, 430, 'lyrics').setOrigin(0.5);
+	var play = this.add.image(200, 380, 'selection-start').setOrigin(0.5);
+	play.setInteractive();
+	play.on('pointerup', () => { playerMenu(this); play.destroy(this);});
+	play.on('pointerover', () => { play.setScale(1.1);});
+	play.on('pointerout', () => { play.setScale(1.0);});
+}
+
+function playerMenu(scene){
+	var player1 = scene.add.image(195, 380, 'player1');
+	player1.setInteractive();
+	player1.on('pointerup', () => { 
+		gameType = '1Player';
+		scene.scene.start('main');
+	});
+	player1.on('pointerover', () => { player1.setScale(1.1);});
+	player1.on('pointerout', () => { player1.setScale(1.0);});
+	var player2 = scene.add.image(195, 430, 'player2');
+	player2.setInteractive();
+	player2.on('pointerup', () => { 
+		gameType = '2Player';
+		scene.scene.start('main');
+	});
+	player2.on('pointerover', () => { player2.setScale(1.1);});
+	player2.on('pointerout', () => { player2.setScale(1.0);});
 }
 
 function startUpdate(){
@@ -69,6 +96,7 @@ var tileCollider;
 var totalCharacters;
 
 var cursors;
+var cursors2;
 
 var scoreText;
 var score = 0;
@@ -89,6 +117,7 @@ function mainPreload(){
     this.load.image('solar-coin', 'ddunddun/solar-coin.png');
     this.load.image('mb-coin', 'ddunddun/mb-coin.png');
     this.load.spritesheet('solar', 'ddunddun/ddun-sprites.png', { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('moonbyul', 'ddunddun/ddun-mb-sprites.png', { frameWidth: 32, frameHeight: 32 });
 	totalCharacters = 380;
 }
 
@@ -112,7 +141,7 @@ function mainCreate(){
 
 		function Player(scene, x, y, name){
 			this.scene = scene;
-			this.character = scene.physics.add.sprite(32, 32, name, 'FFFFFF', {restitution: 1, friction: 1});
+			this.character = scene.physics.add.sprite(x, y, name, '#FFFFFF', {restitution: 1, friction: 1});
 			this.name = name;
 			scene.anims.create({
 		        key: this.name + '-right',
@@ -157,7 +186,6 @@ function mainCreate(){
 		},
 
 		stopped: function(isTileCollision){
-			console.log("stop");
 			if (isTileCollision) {
 				if (this.body.blocked.down){
 					this.character.setVelocityX(0);
@@ -171,7 +199,6 @@ function mainCreate(){
 		}, 
 
 		jump: function(){
-			console.log("jump");
 			if (this.character.body.blocked.down)
 			{
 				this.character.setVelocityY(-275);
@@ -185,9 +212,21 @@ function mainCreate(){
 	});
 
 	player1 = new Player(this, 32,32, 'solar');
-
 	main.physics.add.collider(player1, tileLines);
+
+	if (gameType == '2Player'){
+		player2 = new Player(this, 358-32, 32, 'moonbyul');
+		main.physics.add.collider(player2, tileLines);
+	}
+
 	cursors = this.input.keyboard.createCursorKeys();
+	cursors2 = this.input.keyboard.addKeys(
+		{
+			up:Phaser.Input.Keyboard.KeyCodes.W,
+			down:Phaser.Input.Keyboard.KeyCodes.S,
+			left:Phaser.Input.Keyboard.KeyCodes.A,
+			right:Phaser.Input.Keyboard.KeyCodes.D
+		});
 	createCoins();
 
 	scoreText = this.add.text(32,32, "재미 웃음 포인트: " + score + "/" + totalCharacters/10);
@@ -201,8 +240,8 @@ function createCoins(){
 		main.physics.add.collider(player1, coin, collectCoins, null, main);
 		main.physics.add.collider(coin, tileLines);
 
-		if (isTwoPlayer){
-			var coin2 = main.physics.add.sprite((12-randomX) * 32, + 16, i * 32 * 4 + 256, 'mb-coin');
+		if (gameType == '2Player'){
+			var coin2 = main.physics.add.sprite((12-randomX) * 32 + 16, i * 32 * 4 + 256, 'mb-coin');
 			main.physics.add.collider(player2, coin2, collectCoins, null, main);
 			main.physics.add.collider(coin2, tileLines);
 		}
@@ -271,6 +310,15 @@ function mainUpdate(){
 	if (player1.character.y < 5){
 		console.log("lose");
 		player1.gameOver();
+		if (gameType == '2Player')
+			player2.gameOver();
+		return;
+	}
+
+	if (player2.character.y < 5){
+		console.log("lose");
+		player1.gameOver();
+		player2.gameOver();
 		return;
 	}
 
@@ -282,6 +330,8 @@ function mainUpdate(){
 		lyricLines.setPosition(0, lastPos - 1.2);
 		tileLines.setPosition(0,lastPos -1.2);
 	}
+
+	//player 1
 	if (cursors.up.isDown){
 		player1.jump();
 	}
@@ -293,5 +343,20 @@ function mainUpdate(){
 	}
 	else{
 		player1.stopped(true);
+	}
+
+	if (gameType == '2Player'){
+		if (cursors2.up.isDown){
+			player2.jump();
+		}
+		if (cursors2.right.isDown){
+			player2.moveRight();
+		}
+		else if (cursors2.left.isDown){
+			player2.moveLeft();
+		}
+		else{
+			player2.stopped(true);
+		}
 	}
 }
