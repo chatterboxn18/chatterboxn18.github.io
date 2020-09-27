@@ -80,7 +80,7 @@ function mainInit(data){
 
 function mainPreload(){
 	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/');
-	this.load.image('main-bg','ddunddun/ddun-selection-bg.png');
+	this.load.image('main-bg','ddunddun/ddun-main-bg.png');
 	this.load.image('lyrics-tiles','ddunddun/ddunlyrics-black.png');
 	this.load.image('block-tiles','ddunddun/tilesheets/blocks-tile.png');
     this.load.image('solar-coin', 'ddunddun/solar-coin.png');
@@ -93,7 +93,7 @@ function mainCreate(){
 	main = this;
 
 	//create Background
-	var background = this.add.tileSprite(0,0, 384, 1536, "main-bg");
+	background = this.add.tileSprite(0,0, 384, 1536, "main-bg");
 	background.setOrigin(0);
 	background.setScrollFactor(0,1);
 
@@ -118,7 +118,7 @@ function mainCreate(){
 function createCoins(){
 	for (var i = 0; i < totalCharacters/10; i++){
 		var randomX = Phaser.Math.Between(0,11);
-		var coin = main.physics.add.sprite(randomX * 32 + 16, i * 32 * 4 + 256, 'coin');
+		var coin = main.physics.add.sprite(randomX * 32 + 16, i * 32 * 4 + 256, 'solar-coin');
 		main.physics.add.collider(player, coin, collectCoins, null, main);
 		main.physics.add.collider(coin, tileLines);
 	}
