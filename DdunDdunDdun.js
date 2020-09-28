@@ -250,7 +250,12 @@ function mainCreate(){
 		});
 	createCoins();
 
-	scoreText = this.add.text(32,32, "재미 웃음 포인트: " + score + "/" + totalCharacters/10);
+	var total = 0;
+	if (gameType == '2Player') 
+		total = totalCharacters/5;
+	else
+		total = totalCharacters/10;
+	scoreText = this.add.text(32,32, "재미 웃음 포인트: " + score + "/" + total);
 	scoreText.setColor("#000000");
 }
 
