@@ -33,7 +33,7 @@ var gameConfig = {
 		default: 'arcade', 
 		arcade: {
 			gravity: {y:400}, 
-			debug: false
+			debug: true
 		}
 	}, 
 	scene: [startSceneConfig, mainSceneConfig]
@@ -111,6 +111,10 @@ var lyrics;
 
 var isTwoPlayer = false;
 
+var isGameOver;
+
+var isPlaying = false;
+
 function mainInit(data){
 	name = data.image;
 }
@@ -123,6 +127,10 @@ function mainPreload(){
     this.load.image('solar-coin', 'ddunddun/solar-coin.png');
     this.load.image('mb-coin', 'ddunddun/mb-coin.png');
     this.load.image('lyrics-sheet', 'ddunddun/lyrics.png');
+    this.load.image('overlay', 'ddunddun/page-overlay.png');
+    this.load.image('gameover', 'ddunddun/ddun-gameover.png');
+    this.load.image('stop', 'ddunddun/en-stop.png');
+    this.load.image('instructions', 'ddunddun/ddun-instructions.png');
     this.load.spritesheet('solar', 'ddunddun/ddun-sprites.png', { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('moonbyul', 'ddunddun/ddun-mb-sprites.png', { frameWidth: 32, frameHeight: 32 });
 	totalCharacters = 380;
@@ -142,6 +150,12 @@ function mainCreate(){
 		lyrics.setOrigin(0);
 		lyrics.setScrollFactor(0,1);
 
+		var topBar = this.add.image(192,27,'overlay');
+		var stopBtn = this.add.image(10,10, 'stop');
+		stopBtn.setInteractive();
+		stopBtn.on.('pointerup', ()=> {this.scene.start('start')});
+
+
 		cursors = this.input.keyboard.createCursorKeys();
 
 
@@ -153,7 +167,7 @@ function mainCreate(){
 	var tiles = map.addTilesetImage('lyrics-tiles');
 	lyricLines = map.createStaticLayer(0, tiles, 0,0);
 	lyricLines.setPosition(0, 300);
-	
+
 	var Player = new Phaser.Class({
 
 		initialize:
@@ -181,11 +195,6 @@ function mainCreate(){
 	    	this.body.setSize(10,32);
 	    	this.body.setOffset(10, 0);
 
-	    	//collision checks
-	    	this.body.setCollideWorldBounds(true);
-	    	this.body.checkCollision.left = true;
-	    	this.body.checkCollision.right = true;
-
 	    	this.jumpSpeed = -275;
 	    	this.movementSpeed = 200;
 		},
@@ -195,11 +204,21 @@ function mainCreate(){
 		},
 
 		moveLeft: function(){
+			/*if (this.character.x <= 10)
+			{
+				this.character.setVelocityX(0);
+				return;
+			}*/
 			this.character.play(this.name + '-left');
 			this.character.setVelocityX(-1 * this.movementSpeed);
 		},
 
 		moveRight: function(){
+			/*if (this.character.x >= gameConfig.width - 10)
+			{
+				this.character.setVelocityX(0);
+				return;
+			}*/
 			this.character.play(this.name + '-right');
 			this.character.setVelocityX(this.movementSpeed);
 		},
@@ -250,22 +269,41 @@ function mainCreate(){
 		});
 	createCoins();
 
+	//create overlay with score
+	var topBar = this.add.image(192,27,'overlay');
+	
+	scoreText = this.add.text(192,20, setText()).setOrigin(0.5);
+	scoreText.setColor("#000000");
+
+	//instructions
+	var instructionBtn = this.add.image(0,0, 'instructions').setOrigin(0);
+	instructionBtn.setInteractive();
+	instructionBtn.on('pointerup', () => { 
+		instructionBtn.destroy(this);
+		isPlaying = true;
+	});
+
+}
+
+function setText(){
+	var text = "";
 	var total = 0;
 	if (gameType == '2Player') 
 		total = totalCharacters/5;
 	else
 		total = totalCharacters/10;
-	scoreText = this.add.text(32,32, "재미 웃음 포인트: " + score + "/" + total);
-	scoreText.setColor("#000000");
+	text = "재미 웃음 포인트: " + score + "/" + total;
+	return text;
 }
 
 function createCoins(){
+	var group = main.physics.add.staticGroup();
 	for (var i = 0; i < totalCharacters/10; i++){
 		var randomX = Phaser.Math.Between(0,11);
 		var coin = main.physics.add.sprite(randomX * 32 + 16, i * 32 * 4 + 256, 'solar-coin');
 		main.physics.add.collider(player1, coin, collectCoins, null, main);
 		main.physics.add.collider(coin, tileLines);
-
+		group.add(coin);
 		if (gameType == '2Player'){
 			var coin2 = main.physics.add.sprite((12-randomX) * 32 + 16, i * 32 * 4 + 256, 'mb-coin');
 			main.physics.add.collider(player2, coin2, collectCoins, null, main);
@@ -330,7 +368,6 @@ function createLevel(){
 		tileList.push(tList);
 		
 	}
-	console.log(tileList);
 	var map = main.make.tilemap({data: tileList, tileWidth: 32, tileHeight:32});
 	var tiles = map.addTilesetImage('block-tiles');
 	tileLines = map.createStaticLayer(0, tiles, 0,0);
@@ -339,9 +376,28 @@ function createLevel(){
 	return ultList;
 }
 
+function gameOver(){
+	isGameOver = true;
+	var gameOverScreen = main.add.image(192,gameConfig.height/2, 'gameover').setOrigin(0.5);
+	scoreText.destroy(main);
+	scoreText = main.add.text(192,302, setText()).setOrigin(0.5);
+	scoreText.setColor("#000000");
+	var playAgain = main.add.rectangle(192, 380, 120, 60).setInteractive();
+	//var playAgain = main.add.image(192, 380, 'solar-coin').setInteractive();
+	playAgain.on('pointerup', ()=> {reset(); main.scene.start('start');});
+}
+
+function reset(){
+	scoreText.setPosition(192,20);
+	score = 0;
+	isPlaying = false;
+	isGameOver = false;
+}
+
 function mainUpdate(){
+	
 	if (gameType == 'lyrics'){
-		if (cursors.down.isDown && lyrics.tilePositionY < 1400)
+		if (cursors.down.isDown && lyrics.tilePositionY < 1380)
 		{
 			lyrics.tilePositionY += 2;
 		}
@@ -351,19 +407,21 @@ function mainUpdate(){
 		background.tilePositionY += 1.2;
 		return;
 	}
+	if (!isPlaying || isGameOver)
+		return;
 	if (player1.character.y < 5){
-		console.log("lose");
 		player1.gameOver();
 		if (gameType == '2Player')
 			player2.gameOver();
+		gameOver();
 		return;
 	}
 
 	if (gameType == '2Player'){
 		if (player2.character.y < 5){
-			console.log("lose");
 			player1.gameOver();
 			player2.gameOver();
+			gameOver();
 			return;
 		}	
 	}
@@ -378,6 +436,10 @@ function mainUpdate(){
 	}
 
 	//player 1
+
+	if (player1.character.y < gameConfig.height - 10)
+		main.physics.world.wrap(player1.character);
+
 	if (cursors.up.isDown){
 		player1.jump();
 	}
@@ -392,6 +454,8 @@ function mainUpdate(){
 	}
 
 	if (gameType == '2Player'){
+		if (player2.character.y < gameConfig.height - 10)
+			main.physics.world.wrap(player2.character);
 		if (cursors2.up.isDown){
 			player2.jump();
 		}
