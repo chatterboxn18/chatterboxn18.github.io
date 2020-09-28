@@ -396,7 +396,7 @@ function reset(){
 function mainUpdate(){
 	
 	if (gameType == 'lyrics'){
-		if (cursors.down.isDown && lyrics.tilePositionY < 1400)
+		if (cursors.down.isDown && lyrics.tilePositionY < 1410)
 		{
 			lyrics.tilePositionY += 2;
 		}
