@@ -151,10 +151,9 @@ function mainCreate(){
 		lyrics.setScrollFactor(0,1);
 
 		var topBar = this.add.image(192,27,'overlay');
-		var stopBtn = this.add.image(10,10, 'stop');
+		var stopBtn = this.add.image(10,8, 'stop').setOrigin(0);
 		stopBtn.setInteractive();
-		stopBtn.on.('pointerup', ()=> {this.scene.start('start')});
-
+		stopBtn.on('pointerup', ()=> {this.scene.start('start');});
 
 		cursors = this.input.keyboard.createCursorKeys();
 
@@ -397,7 +396,7 @@ function reset(){
 function mainUpdate(){
 	
 	if (gameType == 'lyrics'){
-		if (cursors.down.isDown && lyrics.tilePositionY < 1380)
+		if (cursors.down.isDown && lyrics.tilePositionY < 1400)
 		{
 			lyrics.tilePositionY += 2;
 		}
