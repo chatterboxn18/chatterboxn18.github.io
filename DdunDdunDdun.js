@@ -115,6 +115,9 @@ var isGameOver;
 
 var isPlaying = false;
 
+var isLyricsDown = false;
+var isLyricsUp = false;
+
 function mainInit(data){
 	name = data.image;
 }
@@ -130,6 +133,7 @@ function mainPreload(){
     this.load.image('overlay', 'ddunddun/page-overlay.png');
     this.load.image('gameover', 'ddunddun/ddun-gameover.png');
     this.load.image('stop', 'ddunddun/en-stop.png');
+    this.load.image('stop', 'ddunddun/arrow.png');
     this.load.image('instructions', 'ddunddun/ddun-instructions.png');
     this.load.spritesheet('solar', 'ddunddun/ddun-sprites.png', { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('moonbyul', 'ddunddun/ddun-mb-sprites.png', { frameWidth: 32, frameHeight: 32 });
@@ -156,6 +160,16 @@ function mainCreate(){
 		stopBtn.on('pointerup', ()=> {this.scene.start('start');});
 
 		cursors = this.input.keyboard.createCursorKeys();
+
+		var downButton = this.add.image(gameConfig.width - 64, gameConfig.height -64, 'arrow');
+		downButton.setInteractive();
+		downButton.on('pointerdown', () => { isLyricsDown = true; });
+		downButton.on('pointerup', () => { isLyricsDown = false; });
+		var upButton = this.add.image(gameConfig.width - 64, gameConfig.height -128, 'arrow');
+		upButton.flipY = true;
+		upButton.setInteractive();
+		upButton.on('pointerdown', () => { isLyricsUp = true; });
+		upButton.on('pointerup', () => { isLyricsUp = false; });
 
 
 		return;
@@ -404,11 +418,11 @@ function reset(){
 function mainUpdate(){
 	
 	if (gameType == 'lyrics'){
-		if (cursors.down.isDown && lyrics.tilePositionY < 1410)
+		if (cursors.down.isDown && lyrics.tilePositionY < 1410 || isLyricsDown && lyrics.tilePositionY < 1410)
 		{
 			lyrics.tilePositionY += 2;
 		}
-		else if (cursors.up.isDown && lyrics.tilePositionY > 0){
+		else if (cursors.up.isDown && lyrics.tilePositionY > 0 || isLyricsUp && lyrics.tilePositionY > 0){
 			lyrics.tilePositionY -= 2;
 		}
 		background.tilePositionY += 1.2;
