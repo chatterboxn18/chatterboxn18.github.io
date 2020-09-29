@@ -33,7 +33,7 @@ var gameConfig = {
 		default: 'arcade', 
 		arcade: {
 			gravity: {y:400}, 
-			debug: true
+			debug: false
 		}
 	}, 
 	scene: [startSceneConfig, mainSceneConfig]
@@ -188,6 +188,7 @@ function mainCreate(){
 		        repeat: -1
 	    	});
 
+	   		this.character.play(this.name + '-right');
 	   		this.active = false;
 
 	    	this.body = this.character.body;
@@ -367,6 +368,13 @@ function createLevel(){
 		tileList.push(tList);
 		
 	}
+
+	//add last line 
+	tileList.push(emptyLine);
+	tileList.push(emptyLine);
+	tileList.push(emptyLine);
+	tileList.push([6,7,7,7,7,7,7,7,7,7,7,8]);
+
 	var map = main.make.tilemap({data: tileList, tileWidth: 32, tileHeight:32});
 	var tiles = map.addTilesetImage('block-tiles');
 	tileLines = map.createStaticLayer(0, tiles, 0,0);
@@ -381,7 +389,7 @@ function gameOver(){
 	scoreText.destroy(main);
 	scoreText = main.add.text(192,302, setText()).setOrigin(0.5);
 	scoreText.setColor("#000000");
-	var playAgain = main.add.rectangle(192, 380, 120, 60).setInteractive();
+	var playAgain = main.add.rectangle(192, 385, 120, 60).setInteractive();
 	//var playAgain = main.add.image(192, 380, 'solar-coin').setInteractive();
 	playAgain.on('pointerup', ()=> {reset(); main.scene.start('start');});
 }
@@ -409,17 +417,12 @@ function mainUpdate(){
 	if (!isPlaying || isGameOver)
 		return;
 	if (player1.character.y < 5){
-		player1.gameOver();
-		if (gameType == '2Player')
-			player2.gameOver();
 		gameOver();
 		return;
 	}
 
 	if (gameType == '2Player'){
 		if (player2.character.y < 5){
-			player1.gameOver();
-			player2.gameOver();
 			gameOver();
 			return;
 		}	
@@ -427,11 +430,21 @@ function mainUpdate(){
 	
 	background.tilePositionY += 1.2;
 
-	var lastPos = lyricLines.y;
-	if (lastPos > -1 * lyricLines.height + gameConfig.height)
+	var lastPos = tileLines.y;
+	if (lastPos > -1 * tileLines.height + gameConfig.height)
 	{
 		lyricLines.setPosition(0, lastPos - 1.2);
 		tileLines.setPosition(0,lastPos -1.2);
+	}
+	else{
+		if (gameType == '2Player'){
+			if(player1.character.y > gameConfig.height - 60 && player2.character.y > gameConfig.height - 60){
+				gameOver();
+			}
+		}
+		if (player1.character.y > gameConfig.height - 60){
+			gameOver();
+		}
 	}
 
 	//player 1
