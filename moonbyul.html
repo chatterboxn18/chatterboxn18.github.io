@@ -5,6 +5,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="game-style.css" rel="stylesheet">
 	<title>MooMooArcade</title>
+	<link rel="shortcut icon" href="MooMooFarm/TemplateData/favicon.ico">
+    <link rel="stylesheet" href="MooMooFarm/TemplateData/style.css">
+    <script src="MooMooFarm/TemplateData/UnityProgress.js"></script>
+    <script src="MooMooFarm/Build/UnityLoader.js"></script>
+	<script>
+      var unityInstance = UnityLoader.instantiate("unityContainer", "Build/WebTest.json", {onProgress: UnityProgress});
+    </script>
 </head>
 <body>
 	<div class="header">
@@ -25,8 +32,8 @@
 	</div>
 	<div class="container">
 		<div id = "mainContent" class = "mainContent">
-			<div id ="videoContent" class="subContent">
-			<iframe width="500" height="350" src="https://www.youtube.com/embed/NXnP06Ial08" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<div class="webgl-content">
+				<div id="unityContainer" style="width: 960px; height: 600px"></div>
 			</div>
 			<div id ="videoContent" class="subContent">
 			<iframe width="500" height="350" src="https://www.youtube.com/embed/oCTqcTe1lIA" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

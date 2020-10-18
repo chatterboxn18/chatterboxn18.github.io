@@ -70,7 +70,7 @@ var skates;
 
 var client1;
 
-var selectedValue = null; 
+var selectedValue = 0; 
 
 function mainInit(data){
 	name = data.image;
@@ -121,45 +121,49 @@ function mainCreate(){
 				gameObject.destroy(main);
 			});
 			this.skate.on('pointerdown', () => {
-				selectedValue = this;
-				var skate = new Skate(main, x, y, index);
+				selectedValue = this.value;
+				console.log(selectedValue);
+				selectedValue = new Skate(main, x, y, index);
 			});
 		}
 	});
 
 	var Client = new Phaser.Class({
 		initialize:
-		function Client(scene, x, y){
+		function Client(scene, x, y, value){
 			this.scene = scene; 
 			this.image = scene.add.image(x,y,'dinga-client').setOrigin(0);
-			this.value = 0;
-			this.image.on('pointerover', clientCheck);
+			this.value = value;
 		},
 
-		clientCheck: function(){
-			if (selectedValue.value == this.value){
-				console.log("Point!!");
-				selectedValue.destroy(main);
-				selectedValue = null;
+		clientCheck: function(client){
+			if (selectedValue == null)
+				return;
+			if (selectedValue == client.value){
+				console.log("Point");
+				selectedValue = 0;
+				client.image.setAlpha(0.7).setTint(0xff9955);
 			}
 		}
 
 	});
 
 
-	Skate(main, 18, 80, 1);
-	Skate(main, 87, 80, 2);
-	Skate(main, 156,80, 3);
+	new Skate(main, 18, 80, 1);
+	new Skate(main, 87, 80, 2);
+	new Skate(main, 156,80, 3);
 
-	Skate(main, 386, 80, 4);
-	Skate(main, 453, 80, 5);
-	Skate(main, 522, 80, 6);
+	new Skate(main, 386, 80, 4);
+	new Skate(main, 453, 80, 5);
+	new Skate(main, 522, 80, 6);
 
-	Skate(main, 18, 182, 7);
-	Skate(main, 87, 182, 8);
-	Skate(main, 156,182, 9);
+	new Skate(main, 18, 182, 7);
+	new Skate(main, 87, 182, 8);
+	new Skate(main, 156,182, 9);
 
-	client1 = new Client(26, 294);
+	client1 = new Client(main, 26, 294, 3);
+	client1.image.setInteractive();
+	client1.image.on('pointerover', () => {client1.clientCheck(client1)});
 	//skates = this.add.staticGroup(Skate);
 
 	//creating Skate Buttons
