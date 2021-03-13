@@ -19,7 +19,7 @@ var gameConfig = {
 	type: Phaser.CANVAS, 
 	parent: 'gameContent',
 	width: 500, 
-	height: 300, 
+	height: 350, 
 	physics: {
 		default: 'arcade', 
 		arcade: {
@@ -35,14 +35,18 @@ var game = new Phaser.Game(gameConfig);
 var main;
 var name = "";
 
+//object variables
+var radishScore = 10;
+var cakeScore = 20;
+
 //game variables
 var player;
 var level = 0; 
 var obstacleSpawned = 0;
-var levelTimer;
-var timerTime;
 var isPaused;
 var currentVelocity = 150;
+var ground;
+var numberOfItems = 3;
 
 //interactivity variables
 var pointer;
@@ -58,7 +62,7 @@ function mainInit(data){
 }
 
 function mainPreload(){
-	this.load.setBaseURL('https://test-items.s3-us-west-1.amazonaws.com/')
+	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/')
 	this.load.image('background', 'andar-bg.png');
 	this.load.image('player', 'player.png');
 	this.load.image('item-1', 'radish.png');
@@ -75,32 +79,24 @@ function mainCreate(){
 	this.background.setOrigin(0);
 	this.background.setScrollFactor(0,1);
 	cursors = this.input.keyboard.createCursorKeys();
-	keyPressLeft = this.input.keyboard.addKey(Phaser.Keyboard.LEFT);
-	keyPressRight = this.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+	keyPressLeft = this.input.keyboard.addKey('LEFT');
+	keyPressRight = this.input.keyboard.addKey('RIGHT');
 	pointer = this.input.activePointer;
-
 	levelTimer = this.time.addEvent({
-		delay: 3000, 
+		delay: 2000, 
 		callback: createObstacle, 
 		loop: true
 	});
+	
 	scoreText = this.add.text(250, 20, "Score: " + score, {fontFamily: 'AGENCYR'}).setOrigin(0.5);
-	scoreTimer = this.time.addEvent({
+	/*scoreTimer = this.time.addEvent({
 		delay: 2000,
 		callback: addScore, 
 		loop: true
-	});
+	});*/
 	createPlayer(this);
 	createGround(this);
-	pause();
-	var instructions = this.add.image(250, 175, "start");
-	instructions.setInteractive();
-	instructions.on('pointerup', ()=> {
-		instructions.destroy();
-		var cabinetLifeTimer = main.time.delayedCall(1000, createObstacle);
-		unpause();
-	});
-	
+
 }
 
 function addScore(){
@@ -109,101 +105,91 @@ function addScore(){
 }
 
 function createObstacle(){
-	if (obstacleSpawned%5 == 0){
-		level += 1;
-		if (currentVelocity < 250){
-			currentVelocity += 10;
-		}
-		if (levelTimer.delay >2000){
-			levelTimer.delay -= 200;
-		}
-		console.log("Leveled up: " + currentVelocity + " "  + levelTimer.delay);
-	}
-	var spawnNumber = Phaser.Math.Between(1,level);
+	var spawnNumber = Phaser.Math.Between(1,numberOfItems);
 	switch (spawnNumber){
 		case 1:
-			createCabinet();
+			createRadish();
 			break;
-		case 2: 
-			createDesk();
+		case 2:
+			createCake();
 			break;
 		case 3:
-			createOpenCabinet();
-			break;
-		case 4: 
-			createDoubleCabinet();
-			break;
-		case 5:
-			createDoubleDesk();
+			createEnemy();
 			break;
 		default:
-			createCabinet();
+			createRadish();
 			break;
 	}
 
-	obstacleSpawned++; 
 }
 
-function createCabinet(){
-	var cabinet = main.physics.add.sprite(530, 235, 'cabinet');
-	cabinet.setScale(.25);
-	cabinet.body.allowGravity = false;
-	cabinet.body.setVelocityX(-currentVelocity);
-	main.physics.add.collider(player, cabinet, touchObject, null, main);
-	main.time.delayedCall(5000, destroyObstacle, [cabinet]);
+function createRadish(){
+	var xPoisition = Phaser.Math.Between(30,480);
+	var radish = main.physics.add.sprite(xPoisition, 0, 'item-1');
+	radish.setScale(.15);
+	radish.body.allowGravity = false;
+	radish.body.setVelocityY(100);
+	main.physics.add.collider(player, radish, collectRadish, null, main);
+	main.physics.add.collider(ground, radish, destroyObstacle);
 }
 
-function createOpenCabinet(){
-	createCabinet();
-	var cabinet = main.physics.add.sprite(502, 248, 'open-cabinet');
-	cabinet.setScale(.25);
-	cabinet.body.allowGravity = false;
-	cabinet.body.setVelocityX(-currentVelocity);
-	main.physics.add.collider(player, cabinet, touchObject, null, main);
-	main.time.delayedCall(5000, destroyObstacle, [cabinet]);
+function createCake(){
+	var xPoisition = Phaser.Math.Between(30,480);
+	var cake = main.physics.add.sprite(xPoisition, 0, 'item-2');
+	cake.setScale(.25);
+	cake.body.allowGravity = false;
+	cake.body.setVelocityY(100);
+	main.physics.add.collider(player, cake, collectCake, null, main);
+	main.physics.add.collider(ground, cake, destroyObstacle);
 }
 
-function createDoubleCabinet(){
-	createCabinet();
-	main.time.delayedCall(500, createCabinet);
+function createEnemy(){
+	var xPoisition = Phaser.Math.Between(30,480);
+	var enemy = main.physics.add.sprite(xPoisition, 0, 'item-3');
+	enemy.setScale(.25);
+	enemy.body.allowGravity = false;
+	enemy.body.setVelocityY(100);
+	main.physics.add.collider(player, enemy, touchObject, null, main);
+	main.physics.add.collider(ground, enemy, destroyObstacle);
 }
 
-function createDesk(){
-	var desk = main.physics.add.sprite(530, 245, 'desk');
-	desk.setScale(.25);
-	desk.body.allowGravity = false;
-	desk.body.setVelocityX(-currentVelocity);
-	main.physics.add.collider(player, desk, touchObject, null, main);
-	main.time.delayedCall(5000, destroyObstacle, [desk]);
+function collectCake(player, object){
+	if (player.body.touching.right || player.body.touching.down || player.body.touching.left || player.body.touching.up){
+		score += cakeScore;
+		scoreText.setText("Score: " + score);
+		object.destroy(main);
+	}
 }
 
-function createDoubleDesk(){
-	createDesk();
-	main.time.delayedCall(400, createDesk);
+function collectRadish(player, object){
+	if (player.body.touching.right || player.body.touching.down || player.body.touching.left || player.body.touching.up){
+		score += radishScore;
+		scoreText.setText("Score: " + score);
+		object.destroy(main);
+	}
 }
 
 function touchObject(player, object){
-	if (player.body.touching.right || player.body.touching.down || player.body.touching.left){
+	if (player.body.touching.right || player.body.touching.down || player.body.touching.left || player.body.touching.up){
 		pause();
 		isPaused = true;
 		console.log("GameOver");
-		gameover();
 	}
 }
 
-function destroyObstacle(obstacle){
-	obstacle.destroy(main);
+function destroyObstacle(ground, object){
+	object.destroy(main);
 }
 
 function createPlayer(game){
-	player = game.physics.add.sprite(75, 170, name);
+	player = game.physics.add.sprite(200, 170, 'player');
 	player.setScale(.3);
 	player.setCollideWorldBounds(true);
 }
 
 function createGround(game){
-	var ground = game.physics.add.staticGroup();
-	ground.create(250, 310, 'ground');
+	group = game.physics.add.staticGroup();
+	ground = group.create(250, 310, 'ground');
 	game.physics.add.collider(player, ground);
 }
 
@@ -211,27 +197,12 @@ function pause(){
 	console.log("paused");
 	main.physics.pause();
 	levelTimer.paused = true;
-	scoreTimer.paused = true;
 }
 
 function unpause(){
 	console.log("unpaused");
 	main.physics.resume();
 	levelTimer.paused = false;
-	scoreTimer.paused = false;
-}
-
-function gameover(){
-	var gameover = main.add.image(250,175, 'gameover');
-	var playagain = main.add.rectangle(165, 243, 148 , 43).setInteractive();
-	playagain.on('pointerup', () => {main.scene.start('selection'); score = 0; level = 1;});
-	var tweetScore = main.add.rectangle(338, 243, 148, 43).setInteractive();
-	var tweet = "I scored: " + score + " in MAMAMOO Andar Jump (moomooarcade.github.io) while streaming 'WANNA BE MYSELF' (bit.ly/3hoUcfn) #MAMAMOO #마마무 @RBW_MAMAMOO";
-	//watchVideo.on('pointerup', () => {window.open('https://youtu.be/sk-qyR224fU');});
-	var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweet);
-	tweetScore.on('pointerup', () => {window.open(url, '_bank');});
-	var text = main.add.text(250, 165, "Score: " + score, {fontFamily: 'AGENCYR'}).setOrigin(0.5);
-	text.style.fontSize = 20;
 }
 
 function mainUpdate(){
@@ -241,10 +212,10 @@ function mainUpdate(){
 	//this.background.tilePositionX += 5;
 
 	if (keyPressLeft.isDown){
-		player.setVelocityX(-100);
+		player.setVelocityX(-200);
 	}
 	else if (keyPressRight.isDown){
-		player.setVelocityX(100);
+		player.setVelocityX(200);
 	}
 	else{
 		player.setVelocityX(0);
