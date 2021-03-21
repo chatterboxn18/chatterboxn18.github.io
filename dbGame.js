@@ -64,7 +64,7 @@ function mainInit(data){
 function mainPreload(){
 	this.load.setBaseURL('https://raw.githubusercontent.com/chatterboxn18/chatterboxn18.github.io/master/')
 	this.load.image('background', 'andar-bg.png');
-	this.load.image('player', 'player.png');
+	this.load.image('player', 'dj.png');
 	this.load.image('item-1', 'radish.png');
 	this.load.image('item-2', 'cupcake.png');
 	this.load.image('ground', 'andar-ground.png');
@@ -89,11 +89,6 @@ function mainCreate(){
 	});
 	
 	scoreText = this.add.text(250, 20, "Score: " + score, {fontFamily: 'AGENCYR'}).setOrigin(0.5);
-	/*scoreTimer = this.time.addEvent({
-		delay: 2000,
-		callback: addScore, 
-		loop: true
-	});*/
 	createPlayer(this);
 	createGround(this);
 
@@ -128,7 +123,7 @@ function createRadish(){
 	var radish = main.physics.add.sprite(xPoisition, 0, 'item-1');
 	radish.setScale(.15);
 	radish.body.allowGravity = false;
-	radish.body.setVelocityY(100);
+	radish.body.setVelocityY(300);
 	main.physics.add.collider(player, radish, collectRadish, null, main);
 	main.physics.add.collider(ground, radish, destroyObstacle);
 }
